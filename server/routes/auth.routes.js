@@ -11,8 +11,11 @@ const jwt = require("jsonwebtoken");
 
 const saltRounds = 10;
 
+
+
+
 // POST to create new user:
-router.post("/register", (req, res, next) => {
+router.post("/register", (req, res) => {
     const { email, userName, firstName, lastName, password } = req.body;
 
     console.log(req.body);

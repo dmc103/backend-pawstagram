@@ -81,8 +81,57 @@ if (!emailRegex.test(email)) {
     })
 
 
+});
 
 
 
+// POST to login user:
+router.post("/login", (req, res, next) => {
+    const { email, password } = req.body;
+
+    //check if email and password are provided
+    if (email === "" || password === "") {
+        res.status(400).json({ message: "Please provide email and password." });
+        return;
+    }
+
+    //Check if the user exists in the DB
+    User.findOne({ email })
+    .then((foundUser) => {
+        if (!foundUser) {
+            res.status(401).json({ message: "Please register first." });
+            return;
+        }
+
+
+        //compare password with hashed password
+        const passwordCorrect = bcrypt.compareSync(password, foundUser.password);
+
+        if(passwordCorrect) {
+            const { _id, email, userName } = foundUser;
+            const payload = { _id, email, userName };
+            const authToken = jwt.sign(payload, process.env.TOKEN_SECRET, {
+                algorithm: "HS256",
+                expiresIn: "1h",
+            });
+
+
+            res.status(200).json({ authToken: authToken });
+        }else {
+            res.status(401).json({ message: "Cannot authenticate user." });
+        }   
+    })
+
+    .catch ((err) => next (err))
+    
 
 });
+
+
+router.get("/verify", isAuthenticated, (req, res) => {
+    console.log(`req.payload`, req.payload);
+    res.status(200).json({ user: req.payload });
+});
+
+module.exports = router;
+

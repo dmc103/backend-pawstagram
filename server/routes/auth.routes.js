@@ -47,6 +47,39 @@ if (!emailRegex.test(email)) {
 
     }
 
+//to check if email is already registered
+    User.findOne({ email })
+    .then((foundUser) => {
+        if (foundUser) {
+            res.status(400).json({ message: "This email is already registered." });
+            return;
+        }
+
+        //if email is new, hash the password
+        const salt = bcrypt.genSaltSync(saltRounds);
+        const hashedPassword = bcrypt.hashSync(password, salt);
+
+        //create new user in DB
+        return User.create({ email, 
+            userName, 
+            firstName, 
+            lastName, 
+            password: hashedPassword })
+
+        .then((createdUser) => {
+            const { email, userName, _id } = createdUser;
+
+            //created new user in DB
+            const user = { email, userName, _id };
+
+            res.status(201).json({user: user });
+        })
+
+        .catch((err) => {
+            res.status(500).json({ message: "Error while creating user.", err });
+        });
+    })
+
 
 
 

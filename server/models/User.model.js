@@ -27,9 +27,17 @@ const userSchema = new Schema({
     type: String,
     required: [true, 'Username is required.'],
     unique: true
-  }
+  },
+  
+  profilepic: String,
+  bio: String,
+  country: String,
+  followers: [],
+  following: [],
 
-}, {
+}, 
+
+{
   timestamps: true
 
 });

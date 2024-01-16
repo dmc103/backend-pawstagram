@@ -1,7 +1,9 @@
-const router = require("express").Router();
+const express = require("express");
+const router = express.Router();
 
-router.get("/", (req, res, next) => {
-  res.json("All good in here");
+
+router.get("/", (req, res) => {
+  res.json("Pawstagram Application");
 });
 
 module.exports = router;

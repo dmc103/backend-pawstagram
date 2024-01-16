@@ -1,14 +1,9 @@
 const express = require("express");
 const router = express.Router();
-
 const User = require("../models/User.model");
-
 const { isAuthenticated } = require("../middleware/jwt.middleware");
-
 const bcrypt = require ("bcrypt");
-
 const jwt = require("jsonwebtoken");
-
 const saltRounds = 10;
 
 
@@ -16,7 +11,7 @@ const saltRounds = 10;
 
 // POST to create new user:
 router.post("/register", (req, res) => {
-    const { email, userName, firstName, lastName, password } = req.body;
+    const { email, userName, firstName, lastName, password, confirmPassword } = req.body;
 
     console.log(req.body);
 
@@ -24,7 +19,8 @@ router.post("/register", (req, res) => {
     userName === "" || 
     firstName === "" || 
     lastName === "" || 
-    password === "") {
+    password === "" ||
+    confirmPassword === "") {
         res.status (400).json({message: "Please provide missing information to complete your registration"});
         return;
     }
@@ -32,7 +28,7 @@ router.post("/register", (req, res) => {
 
 
 //to check if email is valid
-const emailRegex = /[^@ \t\r\n]+@[^@ \t\r\n]+\.[^@ \t\r\n]+/;
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 if (!emailRegex.test(email)) {
     res.status(400).json({ message: "Please enter a valid email address." });
     return;
@@ -54,7 +50,7 @@ if (!emailRegex.test(email)) {
     User.findOne({ email })
     .then((foundUser) => {
         if (foundUser) {
-            res.status(400).json({ message: "This email is already registered." });
+            res.status(400).json({ message: "User is already registered, please login." });
             return;
         }
 
@@ -67,7 +63,9 @@ if (!emailRegex.test(email)) {
             userName, 
             firstName, 
             lastName, 
-            password: hashedPassword })
+            password: hashedPassword });
+        
+        })
 
         .then((createdUser) => {
             const { email, userName, _id } = createdUser;
@@ -79,12 +77,12 @@ if (!emailRegex.test(email)) {
         })
 
         .catch((err) => {
-            res.status(500).json({ message: "Error while creating user.", err });
+            console.error(err);
+            res.status(500).json({ message: "Error while creating user.", error: err.message });
         });
-    })
+    });
 
 
-});
 
 
 
@@ -115,7 +113,7 @@ router.post("/login", (req, res, next) => {
             const payload = { _id, email, userName };
             const authToken = jwt.sign(payload, process.env.TOKEN_SECRET, {
                 algorithm: "HS256",
-                expiresIn: "1h",
+                expiresIn: "6h",
             });
 
 
@@ -125,7 +123,7 @@ router.post("/login", (req, res, next) => {
         }   
     })
 
-    .catch ((err) => next (err))
+    .catch ((err) => res.status(500).json({ message: "Internal server error.", err }));
     
 
 });
@@ -133,8 +131,10 @@ router.post("/login", (req, res, next) => {
 
 router.get("/verify", isAuthenticated, (req, res) => {
     console.log(`req.payload`, req.payload);
+
     res.status(200).json({ user: req.payload });
 });
+
 
 module.exports = router;
 

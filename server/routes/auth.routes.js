@@ -100,7 +100,7 @@ router.post("/login", (req, res, next) => {
 
             res.status(200).json({ authToken: authToken });
         }else {
-            res.status(401).json({ message: "Cannot authenticate user." });
+            res.status(401).json({ message: "Cannot authenticate user. Please try again" });
         }   
     })
 

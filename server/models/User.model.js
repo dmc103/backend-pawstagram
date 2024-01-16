@@ -28,13 +28,34 @@ const userSchema = new Schema({
     required: [true, 'Username is required.'],
     unique: true
   },
-  
-  profilepic: String,
-  bio: String,
-  country: String,
-  followers: [],
-  following: [],
 
+  profilepic: {
+    type: String,
+    default: " "
+  },
+
+  bio: {
+    type: String,
+    default: " "
+  },
+
+  country: {
+    type: String,
+    default: " "
+  },
+
+
+  followers: {
+    type: Array,
+    default: []
+  },
+
+  following: {
+    type: Array,
+    default: []
+
+  }
+  
 }, 
 
 {

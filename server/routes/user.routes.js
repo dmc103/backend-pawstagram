@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const User = require("../models/User.model");
+const { isAuthenticated } = require("../middleware/jwt.middleware");
 const bcrypt = require ("bcrypt");
 
 
@@ -27,11 +28,12 @@ router.get('/:id', async (req, res) => {
 
 
 //update user
-router.patch('/:id', async ( req, res ) => {
+router.patch('/:id/update', async ( req, res ) => {
     try {
+        console.log("Here is the request body", req.body);
 
         //check if the user is the same as the one logged in
-        //..otherUpdates is the rest of the updates
+        //..otherUpdates means that we can update any other field 
         const { userName, firstName, lastName, password, ...otherUpdates } = req.body;
         const updateData = { ...otherUpdates };
 
@@ -57,7 +59,7 @@ router.patch('/:id', async ( req, res ) => {
         //to update the user
         const updatedUser = await User.findByIdAndUpdate(req.params.id, {
             $set: updateData,
-        }, { new: true }).select('-password'); //to exclude the password to be showing in the response
+        }, { new: true }).select('-password'); //this is to exclude the password to be showing in the response
 
         return res.status(200).json(updatedUser);
 
@@ -68,12 +70,39 @@ router.patch('/:id', async ( req, res ) => {
 });
 
 
+
+//Delete user
+router.delete('/:id/delete', isAuthenticated, async (req, res, next) => {
+    try {
+        const userToDelete = await User.findById(req.params.id);
+        const requestingUser = req.auth._id;
+
+        console.log("userToDelete", userToDelete);
+        console.log("requestingUser", requestingUser);
+
+        if (!userToDelete) {
+            return res.status(404).json({ message: "User not found, please try again" });
+        }
+
+        //to check if the user is the same as the one logged in
+        if (requestingUser !== userToDelete.id.toString()) {
+            return res.status(401).json({ message: "Request denied, you are unauthorized to delete this user." });
+        }
+
+        await userToDelete.deleteOne();
+        res.status(200).json({ message: "User deleted successfully" });
+
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+
+});
+
+
+
+
+
     
-
-
-
-
-
 
 
 

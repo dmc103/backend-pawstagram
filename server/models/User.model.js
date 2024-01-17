@@ -45,16 +45,17 @@ const userSchema = new Schema({
   },
 
 
-  followers: {
-    type: Array,
+  followers: [{
+    type: Schema.Types.ObjectId,
+    ref: "User",
     default: []
-  },
+  }],
 
-  following: {
-    type: Array,
+  following: [{
+    type: Schema.Types.ObjectId,
+    ref: "User",
     default: []
-
-  }
+  }]
   
 }, 
 

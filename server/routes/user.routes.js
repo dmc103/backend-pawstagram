@@ -6,6 +6,13 @@ const bcrypt = require ("bcrypt");
 
 
 
+//test route
+router.get('/test', (req, res) => {
+    res.send("Hello from user routes");
+});
+
+
+
 //get user from database
 router.get('/:id', async (req, res) => {
     try {
@@ -71,7 +78,7 @@ router.patch('/:id/update', async ( req, res ) => {
 
 
 
-//Delete user
+//delete user
 router.delete('/:id/delete', isAuthenticated, async (req, res, next) => {
     try {
         const userToDelete = await User.findById(req.params.id);
@@ -102,7 +109,49 @@ router.delete('/:id/delete', isAuthenticated, async (req, res, next) => {
 
 
 
-    
+//route to follow another user
+router.put('/:id/follow', isAuthenticated, async ( req, res ) => {
+    const userId = req.auth._id;
+    const userToFollowId = req.params.id; 
+
+    //check if the user is the same as the one logged in
+    if (userId === userToFollowId) {
+        return res.status(400).json({ message: "Action is not valid, you cannot follow yourself" });
+    }
+
+    try {
+        const user = await User.findById(userId);
+        const userToFollow = await User.findById(userToFollowId);
+
+        //if both users do not exist
+        if (!user || !userToFollow) {
+            return res.status(404).json({ message: "User not found, please try again" });
+        }
+
+        //check if the user is already following the other user
+        if(user.following.includes(userToFollowId)) {
+            return res.status(400).json({ message: "You are already following this user" });
+        }
+
+        //if not, then add the user to the following array
+        user.following.push(userToFollowId);
+        userToFollow.followers.push(userId);
+
+        await user.save();
+        await userToFollow.save();
+
+        res.status(200).json({ message: "User has been followed successfully" });
+    } catch (err) {
+        res.status(500).json({ message: err.message }); 
+    }
+
+});
+
+
+
+
+
+
 
 
 

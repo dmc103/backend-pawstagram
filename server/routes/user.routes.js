@@ -6,11 +6,6 @@ const bcrypt = require ("bcrypt");
 
 
 
-//test route
-router.get('/test', (req, res) => {
-    res.send("Hello from user routes");
-});
-
 
 
 //get user from database

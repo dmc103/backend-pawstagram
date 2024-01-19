@@ -97,8 +97,10 @@ router.post("/login", (req, res, next) => {
                 expiresIn: "6h",
             });
 
+            //send the token to the client
+            //and the user info
+            res.status(200).json({ authToken: authToken, userId: _id, userName: userName });
 
-            res.status(200).json({ authToken: authToken });
         }else {
             res.status(401).json({ message: "Cannot authenticate user. Please try again" });
         }   

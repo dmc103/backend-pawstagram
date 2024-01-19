@@ -145,14 +145,6 @@ router.put('/:id/follow', isAuthenticated, async ( req, res ) => {
 
 
 
-
-
-
-
-
-
-
-
 module.exports = router;
 
 

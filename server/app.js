@@ -11,15 +11,14 @@ const express = require("express");
 
 const app = express();
 
-const cors = require('cors');
-
+const cors = require("cors");
 
 //to enable cors
-app.use(cors({
-    origin: ['http://localhost:5005', 'http://localhost:5173']
-}));
-
-
+app.use(
+  cors({
+    origin: ["http://localhost:5005", "http://localhost:5173"],
+  })
+);
 
 // ℹ️ This function is getting exported from the config folder. It runs most pieces of middleware
 require("./config")(app);
@@ -27,24 +26,19 @@ require("./config")(app);
 // 👇 Start handling routes here
 const indexRoutes = require("./routes/index.routes");
 app.use("/api", indexRoutes);
-console.log('Here is the indexRoutes', indexRoutes);
-
+console.log("Here is the indexRoutes", indexRoutes);
 
 const authRoutes = require("./routes/auth.routes");
 app.use("/auth", authRoutes);
-console.log('Here is the authRoutes', authRoutes);
-
+console.log("Here is the authRoutes", authRoutes);
 
 const userRoutes = require("./routes/user.routes");
 app.use("/user", userRoutes);
-console.log('Here is the userRoutes', userRoutes);
-
+console.log("Here is the userRoutes", userRoutes);
 
 // const postRoutes = require("./routes/post.routes")
 // app.use("/post", postRoutes);
 // console.log
-
-
 
 // ❗ To handle errors. Routes that don't exist or errors that you handle in specific routes
 require("./error-handling")(app);

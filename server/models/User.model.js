@@ -60,7 +60,7 @@ const userSchema = new Schema({
   pets: [{
     type: String,
     enum: ["dog", "cat", "fish", "rabbit", "bird", "star", "heart"],
-    default: []
+    default:  []
   }]
   
 }, 

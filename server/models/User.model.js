@@ -55,6 +55,12 @@ const userSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "User",
     default: []
+  }],
+
+  pets: [{
+    type: String,
+    enum: ["dog", "cat", "fish", "rabbit", "bird", "star", "heart"],
+    default: []
   }]
   
 }, 

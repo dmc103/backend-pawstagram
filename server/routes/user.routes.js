@@ -4,6 +4,25 @@ const User = require("../models/User.model");
 const { isAuthenticated } = require("../middleware/jwt.middleware");
 const bcrypt = require("bcrypt");
 
+//to update online status
+router.post("/status", async (req, res) => {
+  const { userId, isOnline } = req.body;
+
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { isOnline },
+      { new: true }
+    );
+
+    res
+      .status(200)
+      .json({ message: "User status updated successfully", updatedUser });
+  } catch (err) {
+    res.status(500).json({ message: "Internal server error", err });
+  }
+});
+
 //get user from database
 router.get("/:id", async (req, res) => {
   try {

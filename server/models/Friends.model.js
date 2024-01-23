@@ -2,31 +2,28 @@ const { Schema, model } = require("mongoose");
 
 const friendsSchema = new Schema(
   {
-    firstName: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-
-    lastName: {
-      type: String,
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
       required: true,
     },
 
-    profilePic: {
-      type: String,
-      required: true,
-      ref: "User",
+    follower: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
     },
 
-    location: {
-      type: String,
-      required: [true, "Last name is required."],
-    },
+    createdAt: {
+      type: Date,
+      default: Date.now
+    }
   },
+
   {
     timestamps: true,
   }
+  
 );
 
 const Friends = model("Friends", friendsSchema);

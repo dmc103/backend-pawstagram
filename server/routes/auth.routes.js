@@ -22,12 +22,10 @@ router.post("/register", async (req, res) => {
       password === "" ||
       confirmPassword === ""
     ) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "Please provide missing information to complete your registration",
-        });
+      return res.status(400).json({
+        message:
+          "Please provide missing information to complete your registration",
+      });
     }
 
     // Check if email is valid
@@ -100,8 +98,8 @@ router.post("/login", (req, res, next) => {
       const passwordCorrect = bcrypt.compareSync(password, foundUser.password);
 
       if (passwordCorrect) {
-        const { _id, email, userName } = foundUser;
-        const payload = { _id, email, userName };
+        const { _id, email, userName, country } = foundUser;
+        const payload = { _id, email, userName, country };
         const authToken = jwt.sign(payload, process.env.TOKEN_SECRET, {
           algorithm: "HS256",
           expiresIn: "24h",
@@ -109,9 +107,12 @@ router.post("/login", (req, res, next) => {
 
         //send the token to the client
         //and the user info
-        res
-          .status(200)
-          .json({ authToken: authToken, userId: _id, userName: userName });
+        res.status(200).json({
+          authToken: authToken,
+          userId: _id,
+          userName: userName,
+          country: country,
+        });
       } else {
         res
           .status(401)
@@ -122,6 +123,25 @@ router.post("/login", (req, res, next) => {
     .catch((err) =>
       res.status(500).json({ message: "Internal server error.", err })
     );
+});
+
+//to update online status
+router.post("/user/status", async (req, res) => {
+  const { userId, isOnline } = req.body;
+
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { isOnline },
+      { new: true }
+    );
+
+    res
+      .status(200)
+      .json({ message: "User status updated successfully", updatedUser });
+  } catch (err) {
+    res.status(500).json({ message: "Internal server error", err });
+  }
 });
 
 router.get("/verify", isAuthenticated, (req, res) => {

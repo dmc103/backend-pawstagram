@@ -3,6 +3,7 @@ const router = express.Router();
 const User = require("../models/User.model");
 const { isAuthenticated } = require("../middleware/jwt.middleware");
 const bcrypt = require("bcrypt");
+const Post = require("../models/Post.model");
 
 //to update online status
 router.post("/status", async (req, res) => {
@@ -154,6 +155,20 @@ router.put("/:id/follow", isAuthenticated, async (req, res) => {
     res.status(200).json({ message: "User has been followed successfully" });
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+});
+
+//endpoint to fetch all posts of a user
+router.get("/:id/posts", async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const posts = await Post.find({ user: userId }).populate(
+      "user",
+      "username"
+    );
+    res.json(posts);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 });
 

@@ -36,9 +36,9 @@ const userRoutes = require("./routes/user.routes");
 app.use("/user", userRoutes);
 console.log("Here is the userRoutes", userRoutes);
 
-// const postRoutes = require("./routes/post.routes")
-// app.use("/post", postRoutes);
-// console.log
+const postRoutes = require("./routes/post.routes");
+app.use("/post", postRoutes);
+console.log("Here is the postRoutes", postRoutes);
 
 // ❗ To handle errors. Routes that don't exist or errors that you handle in specific routes
 require("./error-handling")(app);

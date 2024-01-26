@@ -2,36 +2,21 @@ const { Schema, model } = require("mongoose");
 
 const postSchema = new Schema(
   {
-    user: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
+    userId: {
+      type: String,
       required: true,
     },
-
-    location: String,
-
-    description: String,
-
-    picturePath: String, // URL from Cloudinary
-    likes: {
-      type: Map,
-      of: Boolean,
-      default: {},
+    desc: {
+      type: String,
+      max: 500,
     },
-
-    comments: [
-      {
-        user: {
-          type: Schema.Types.ObjectId,
-          ref: "User",
-        },
-        comment: String,
-        createdAt: {
-          type: Date,
-          default: Date.now,
-        },
-      },
-    ],
+    img: {
+      type: String,
+    },
+    likes: {
+      type: Array,
+      default: [],
+    },
   },
   { timestamps: true }
 );

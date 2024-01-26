@@ -35,7 +35,17 @@ const userSchema = new Schema(
       default: " ",
     },
 
+    coverpic: {
+      type: String,
+      default: " ",
+    },
+
     bio: {
+      type: String,
+      default: " ",
+    },
+
+    city: {
       type: String,
       default: " ",
     },
@@ -50,21 +60,15 @@ const userSchema = new Schema(
       default: false,
     },
 
-    friends: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-        default: [],
-      },
-    ],
+    friends: {
+      type: Array,
+      default: [],
+    },
 
-    following: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-        default: [],
-      },
-    ],
+    following: {
+      type: Array,
+      default: [],
+    },
 
     pets: [
       {

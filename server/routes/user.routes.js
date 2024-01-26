@@ -158,6 +158,55 @@ router.put("/:id/follow", isAuthenticated, async (req, res) => {
   }
 });
 
+//route to unfollow another user
+router.post("/:id/unfollow", isAuthenticated, async (req, res) => {
+  const userId = req.auth._id;
+  const userToUnfollowId = req.params.id;
+
+  //check if the user is the same as the one logged in
+  if (userId === userToUnfollowId) {
+    return res
+      .status(400)
+      .json({ message: "Action is not valid, you cannot unfollow yourself" });
+  }
+
+  try {
+    const user = await User.findById(userId);
+    const userToUnfollow = await User.findById(userToUnfollowId);
+
+    //check if both users exist
+    if (!user || !userToUnfollow) {
+      return res
+        .status(404)
+        .json({ message: "User not found, please try again" });
+    }
+
+    //check if the user is already following the other user
+    if (user.following.includes(userToUnfollowId)) {
+      return res
+        .status(400)
+        .json({ message: "You are not following this user" });
+    }
+
+    //remove the userToUnffollowId from the following array
+    user.following = user.following.filter(
+      (id) => id.toStrng() !== userToUnfollowId
+    );
+
+    //remove the userId from the userToUnfollow's followers array
+    userToUnfollow.followers = userToUnfollow.followers.filter(
+      (id) => id.toStrng() !== userId
+    );
+
+    await user.save();
+    await userToUnfollow.save();
+
+    res.status(200).json({ message: "User has been unfollowed successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 //endpoint to fetch all posts of a user
 router.get("/:id/posts", async (req, res) => {
   try {

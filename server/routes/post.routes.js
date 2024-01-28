@@ -36,17 +36,26 @@ router.post(
         }
       }
 
+      console.log("req.auth:", req.auth);
+
       // to create a new post
       const newPost = new Post({
-        ...req.body,
-        userId: req.user._id,
-        image: imageUrl,
+        userId: req.auth && req.auth._id,
+        img: imageUrl,
+        desc: req.body.desc,
+        likes: [],
       });
 
+      //   console.log("this is the re.body:", req.body);
+
       const savedPost = await newPost.save();
+
+      //   console.log("this is the saved post:", savedPost);
+
       res.status(200).json(savedPost);
     } catch (error) {
       res.status(500).json({ message: error.message });
+      console.log(error);
     }
   }
 );
@@ -119,11 +128,11 @@ router.get("/timeline/:userId", async (req, res) => {
     }
     const userPosts = await Post.find({ userId: currentUser._id });
 
-    if (!currentUser.followings || currentUser.followings.length === 0) {
+    if (!currentUser.following || currentUser.following.length === 0) {
       return res.json(userPosts);
     }
 
-    const friendsPostsPromises = currentUser.followings.map((friendId) =>
+    const friendsPostsPromises = currentUser.following.map((friendId) =>
       Post.find({ userId: friendId })
     );
     const friendsPosts = await Promise.all(friendsPostsPromises);

@@ -50,7 +50,7 @@ router.post(
 
       const savedPost = await newPost.save();
 
-      //   console.log("this is the saved post:", savedPost);
+      console.log("this is the saved post:", savedPost);
 
       res.status(200).json(savedPost);
     } catch (error) {

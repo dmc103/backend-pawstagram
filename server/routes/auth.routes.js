@@ -5,6 +5,7 @@ const { isAuthenticated } = require("../middleware/jwt.middleware");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const saltRounds = 10;
+var nodemailer = require("nodemailer");
 
 // POST to create new user:
 router.post("/register", async (req, res) => {
@@ -150,4 +151,64 @@ router.get("/verify", isAuthenticated, (req, res) => {
   res.status(200).json({ user: req.payload });
 });
 
+//forgot-password
+// router.post("/forgot-password", async (req, res) => {
+//   try {
+//     const { email } = req.body;
+//     const foundUser = await User.findOne({ email: email });
+//     if (!foundUser) {
+//       console.log(foundUser);
+//       return res.send({ Status: "Unable to authenticate credentials." });
+//     }
+//     const token = jwt.sign({ id: foundUser._id }, process.env.TOKEN_SECRET, {
+//       algorithm: "HS256",
+//       expiresIn: "1d",
+//     });
+
+//     var transporter = nodemailer.createTransport({
+//       service: "gmail",
+//       auth: {
+//         user: "youremail@gmail.com",
+//         pass: "yourpassword",
+//       },
+//     });
+
+//     var mailOptions = {
+//       from: "youremail@gmail.com",
+//       to: "myfriend@yahoo.com",
+//       subject: "Reset your password",
+//       text: `http://localhost:5173/reset-password/${foundUser._id}/${token}`,
+//     };
+
+//     transporter.sendMail(mailOptions, function (error, info) {
+//       if (error) {
+//         console.log(error);
+//       } else {
+//         return res.send({ Status: "Success" });
+//       }
+//     });
+//   } catch (err) {
+//     console.log(err);
+//   }
+// });
+
+// router.post("/reset-password/:id/:token", (req, res) => {
+//   const { id, token } = req.params;
+//   const { password } = req.body;
+
+//   jwt.verify(token, process.env.TOKEN_SECRET, (err, decoded) => {
+//     if (err) {
+//       return res.json({ Status: "Error with token" });
+//     } else {
+//       bcrypt
+//         .hashSync(password, 10)
+//         .then((hash) => {
+//           User.findByIdAndUpdate({ _id: id }, { password: hash })
+//             .then((u) => res.send({ Status: "Success" }))
+//             .catch((err) => res.send({ Status: err }));
+//         })
+//         .catch((err) => res.send({ Status: err }));
+//     }
+//   });
+// });
 module.exports = router;

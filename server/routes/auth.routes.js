@@ -153,7 +153,7 @@ router.get("/verify", isAuthenticated, (req, res) => {
 });
 
 //forgot password route
-router.post("/forgotPassword", async (req, res) => {
+router.post("/forgot-password", async (req, res) => {
   try {
     const { email } = req.body;
     const foundUser = await User.findOne({ email: email });

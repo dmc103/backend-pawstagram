@@ -5,6 +5,8 @@ const { isAuthenticated } = require("../middleware/jwt.middleware");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const saltRounds = 10;
+const nodemailer = require("nodemailer");
+const dotenv = require("dotenv");
 
 // POST to create new user:
 router.post("/register", async (req, res) => {
@@ -148,6 +150,60 @@ router.get("/verify", isAuthenticated, (req, res) => {
   console.log(`req.payload`, req.payload);
 
   res.status(200).json({ user: req.payload });
+});
+
+//forgot password route
+router.post("/forgotPassword", async (req, res) => {
+  try {
+    const { email } = req.body;
+    const foundUser = await User.findOne({ email: email });
+    if (!foundUser) {
+      return res
+        .status(404)
+        .send({ message: "Email not found. Please check and try again." });
+    }
+
+    const token = jwt.sign({ id: foundUser._id }, process.env.TOKEN_SECRET, {
+      algorithm: "HS256",
+      expiresIn: "1d",
+    });
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USERNAME,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL_USERNAME,
+      to: email,
+      subject: "Reset your password",
+      text: `Please click on the following link to reset your password: http://localhost:5173/reset-password/${foundUser._id}/${token}`,
+    };
+
+    //new promise to send email
+    await new Promise((resolve, reject) => {
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(info);
+        }
+      });
+    });
+
+    return res.send({
+      message:
+        "Password reset email sent successfully. Please check your inbox.",
+    });
+  } catch (err) {
+    res
+      .status(500)
+      .send({ message: "An error occurred. Please try again later." });
+    console.log("Error in /forgotPassword:", err);
+  }
 });
 
 module.exports = router;

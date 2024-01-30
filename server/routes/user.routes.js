@@ -42,6 +42,19 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+// // user/upload
+// // receives the image, sends it to Cloudinary via the fileUploader and returns the image URL
+// router.post("/upload", fileUploader.single("profilepic")),
+//   (req, res, next) => {
+//     if (req.file) {
+//       next(new Error("No file uploaded!"));
+
+//       return;
+//     }
+//   };
+
+// // Get the URL of h
+
 //update user
 router.patch("/:id/update", async (req, res) => {
   try {

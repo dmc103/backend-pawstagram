@@ -5,8 +5,12 @@ const { isAuthenticated } = require("../middleware/jwt.middleware");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const saltRounds = 10;
+<<<<<<< HEAD
 const nodemailer = require("nodemailer");
 const dotenv = require("dotenv");
+=======
+var nodemailer = require("nodemailer");
+>>>>>>> db34855bab986cef1955138f079fad79e107a26a
 
 // POST to create new user:
 router.post("/register", async (req, res) => {

@@ -176,6 +176,13 @@ router.post("/forgot-password", async (req, res) => {
       },
     });
 
+    //to check if the transporter is working
+    console.log("Here is the transporter", transporter);
+    console.log({
+      user: process.env.EMAIL_USERNAME,
+      pass: process.env.EMAIL_PASSWORD,
+    });
+
     const mailOptions = {
       from: process.env.EMAIL_USERNAME,
       to: email,

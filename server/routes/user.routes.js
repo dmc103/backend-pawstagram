@@ -4,6 +4,25 @@ const User = require("../models/User.model");
 const { isAuthenticated } = require("../middleware/jwt.middleware");
 const bcrypt = require("bcrypt");
 const Post = require("../models/Post.model");
+const cloudinary = require("cloudinary").v2;
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const multer = require("multer");
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_KEY,
+  api_secret: process.env.CLOUDINARY_SECRET,
+  secure: true,
+});
+
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  folder: "pawstagram",
+  allowedFormats: ["jpg", "png", "jpeg"],
+  transformation: [{ width: 500, height: 500, crop: "limit" }],
+});
+
+const parser = multer({ storage: storage });
 
 //to update online status
 router.post("/status", async (req, res) => {
@@ -55,8 +74,8 @@ router.get("/:id", async (req, res) => {
 
 // // Get the URL of h
 
-//update user
-router.patch("/:id/update", async (req, res) => {
+//update user including profile pic
+router.patch("/:id/update", parser.single("profilepic"), async (req, res) => {
   try {
     console.log("Here is the request body", req.body);
 
@@ -65,6 +84,12 @@ router.patch("/:id/update", async (req, res) => {
     const { userName, firstName, lastName, password, ...otherUpdates } =
       req.body;
     const updateData = { ...otherUpdates };
+
+    //Update profile pic
+    if (req.file) {
+      const profilePicUrl = "https://api.cloudinary.com/v1_1/dl7j7kjhq/upload";
+      updateData.profilepic = profilePicUrl;
+    }
 
     //check if user exists
     const user = await User.findById(req.params.id);
@@ -84,14 +109,12 @@ router.patch("/:id/update", async (req, res) => {
       updateData.password = hashedPassword;
     }
 
-    //to update the user
+    //update user with new data
     const updatedUser = await User.findByIdAndUpdate(
       req.params.id,
-      {
-        $set: updateData,
-      },
+      { $set: updateData },
       { new: true }
-    ).select("-password"); //this is to exclude the password to be showing in the response
+    ).select("-password");
 
     return res.status(200).json(updatedUser);
   } catch (err) {

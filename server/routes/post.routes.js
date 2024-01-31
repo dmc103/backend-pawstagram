@@ -7,6 +7,15 @@ const jwt = require("jsonwebtoken");
 const { isAuthenticated } = require("../middleware/jwt.middleware");
 const Post = require("../models/Post.model");
 const User = require("../models/User.model");
+const cloudinary = require("cloudinary").v2;
+const streamifier = require("streamifier");
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_KEY,
+  api_secret: process.env.CLOUDINARY_SECRET,
+  secure: true,
+});
 
 //create a post
 router.post(
@@ -19,21 +28,21 @@ router.post(
 
       // file upload to cloudinary
       if (req.file) {
-        const result = await cloudinary.uploader
-          .upload_stream({
-            resource_type: "raw",
-          })
-          .catch((error) => {
-            res.status(500).json({ message: "Error uploading image" });
-            return;
-          });
+        const result = await new Promise((resolve, reject) => {
+          let stream = cloudinary.uploader.upload_stream(
+            { resource_type: "raw" },
+            function (error, result) {
+              if (error) {
+                reject(error);
+              } else {
+                resolve(result);
+              }
+            }
+          );
+          streamifier.createReadStream(req.file.buffer).pipe(stream);
+        });
 
-        if (result) {
-          imageUrl = result.url;
-        } else {
-          res.status(500).json({ message: "Error uploading image" });
-          return;
-        }
+        imageUrl = result.secure_url;
       }
 
       console.log("req.auth:", req.auth);

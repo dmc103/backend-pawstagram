@@ -64,6 +64,23 @@ router.get("/users", isAuthenticated, async (req, res) => {
   }
 });
 
+//endpoint to fetch all friends of a user
+router.post("/friends", isAuthenticated, async (req, res) => {
+  try {
+    const { userIds } = req.body;
+
+    if (!userIds || !Array.isArray(userIds)) {
+      return res.status(400).json({ message: "Invalid user IDs" });
+    }
+    const friendsDetails = await User.find({ _id: { $in: userIds } }).select(
+      "-password"
+    );
+    res.json(friendsDetails);
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error", error });
+  }
+});
+
 //get user from database
 router.get("/:id", async (req, res) => {
   try {

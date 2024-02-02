@@ -1,4 +1,5 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const router = express.Router();
 const User = require("../models/User.model");
 const { isAuthenticated } = require("../middleware/jwt.middleware");
@@ -24,6 +25,13 @@ const storage = new CloudinaryStorage({
 
 const parser = multer({ storage: storage });
 
+// const isAuthenticated = (req, res, next) => {
+//   if (req.isAuthenticated()) {
+//     return next();
+//   }
+//   res.status(401).json({ message: "User is not authorized" });
+// };
+
 //to update online status
 router.post("/status", async (req, res) => {
   const { userId, isOnline } = req.body;
@@ -40,6 +48,19 @@ router.post("/status", async (req, res) => {
       .json({ message: "User status updated successfully", updatedUser });
   } catch (err) {
     res.status(500).json({ message: "Internal server error", err });
+  }
+});
+
+//endpoint to fetch all users
+router.get("/users", isAuthenticated, async (req, res) => {
+  try {
+    const currentUserId = req.auth._id;
+    const users = await User.find({ _id: { $ne: currentUserId } }).select(
+      "-password"
+    );
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 });
 
@@ -156,6 +177,10 @@ router.put("/:id/follow", isAuthenticated, async (req, res) => {
   const userId = req.auth._id;
   const userToFollowId = req.params.id;
 
+  if (!mongoose.Types.ObjectId.isValid(userToFollowId)) {
+    return res.status(400).json({ message: "Invalid user ID." });
+  }
+
   //check if the user is the same as the one logged in
   if (userId === userToFollowId) {
     return res
@@ -181,6 +206,9 @@ router.put("/:id/follow", isAuthenticated, async (req, res) => {
         .json({ message: "You are already following this user" });
     }
 
+    console.log("Current User:", user);
+    console.log("User to Follow:", userToFollow);
+
     //if not, then add the user to the following array
     user.following.push(userToFollowId);
     userToFollow.followers.push(userId);
@@ -189,8 +217,11 @@ router.put("/:id/follow", isAuthenticated, async (req, res) => {
     await userToFollow.save();
 
     res.status(200).json({ message: "User has been followed successfully" });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+  } catch (error) {
+    console.log("Error details:", error.message);
+    res
+      .status(500)
+      .json({ message: "Internal service error, please try again" });
   }
 });
 

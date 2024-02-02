@@ -60,7 +60,7 @@ const userSchema = new Schema(
       default: false,
     },
 
-    friends: {
+    followers: {
       type: Array,
       default: [],
     },

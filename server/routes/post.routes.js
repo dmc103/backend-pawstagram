@@ -103,10 +103,14 @@ router.put("/:id", async (req, res) => {
 router.delete("/:id", async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
-    if (post.userId === req.body.userId) {
-      res.status(200).json({ message: "The post has been deleted" });
+    if (!post.likes.includes(req.body.userId)) {
+      // if the user hasn't liked the post yet, add their ID to the likes array
+      await post.updateOne({ $push: { likes: req.body.userId } });
+      res.status(200).json({ message: "You liked the post!" });
     } else {
-      res.status(403).json({ message: "You can only delete your post" });
+      // if the user has already liked the post, remove their ID from the likes array
+      await post.updateOne({ $pull: { likes: req.body.userId } });
+      res.status(200).json({ message: "You disliked the post!" });
     }
   } catch (error) {
     res.status(500).json({ message: error.message });

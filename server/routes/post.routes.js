@@ -122,13 +122,14 @@ router.put("/:id/like", async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
     if (!post.likes.includes(req.body.userId)) {
-      await post.updatedOne({ $push: { likes: req.body.userId } });
+      await post.updateOne({ $push: { likes: req.body.userId } });
       res.status(200).json({ message: "You liked the post!" });
     } else {
-      await post.updatedOne({ $pull: { likes: req.body.userId } });
+      await post.updateOne({ $pull: { likes: req.body.userId } });
       res.status(200).json({ message: "You disliked the post!" });
     }
   } catch (error) {
+    console.log("Error in /:id/like:", error);
     res.status(500).json({ message: error.message });
   }
 });

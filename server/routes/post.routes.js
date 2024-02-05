@@ -69,6 +69,21 @@ router.post(
   }
 );
 
+//route to fetch all posts
+router.get("/all", async (req, res) => {
+  try {
+    const posts = await Post.find()
+
+      .populate("userId", "userName profilepic")
+      .sort({ createdAt: -1 });
+    console.log("here are the posts:", posts);
+    res.json(posts);
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
 //update a post
 router.put("/:id", async (req, res) => {
   try {
@@ -125,7 +140,6 @@ router.get("/:id", async (req, res) => {
 });
 
 //display all friends' posts in the timeline
-
 router.get("/timeline/:userId", async (req, res) => {
   try {
     const currentUser = await User.findById(req.params.userId);

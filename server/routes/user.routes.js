@@ -81,6 +81,20 @@ router.post("/friends", isAuthenticated, async (req, res) => {
   }
 });
 
+// //endpoint to get another user's profile
+// router.get("/:userName", isAuthenticated, async (req, res) => {
+//   try {
+//     const userName = req.params.userName;
+//     const user = await User.findOne({ userName: userName });
+//     if (!user) {
+//       return res.status(404).json({ message: "User not found, try again" });
+//     }
+//     res.json(user);
+//   } catch (error) {
+//     res.status(500).json({ message: "Internal server error", error });
+//   }
+// });
+
 //get user from database
 router.get("/:id", async (req, res) => {
   try {

@@ -14,11 +14,7 @@ const app = express();
 const cors = require("cors");
 
 //to enable cors
-app.use(
-  cors({
-    origin: ["http://localhost:5005", "http://localhost:5173"],
-  })
-);
+app.use(cors());
 
 // ℹ️ This function is getting exported from the config folder. It runs most pieces of middleware
 require("./config")(app);

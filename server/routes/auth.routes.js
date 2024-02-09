@@ -190,6 +190,30 @@ router.post("/forgot-password", async (req, res) => {
       text: `Please click on the following link to reset your password: http://localhost:5173/reset-password/${foundUser._id}/${token}`,
     };
 
+    //reset-password route
+
+    router.post("/reset-password/:id/:token", (req, res) => {
+      const { id, token } = req.params;
+      const { password } = req.body;
+
+      jwt.verify(token, process.env.TOKEN_SECRET, (err, decoded) => {
+        if (err) {
+          return res.status(400).send({ message: "Error. Please try again." });
+        } else {
+          bcrypt
+            .hash(password, saltRounds)
+            .then((hashedPassword) => {
+              User.findByIdAndUpdate({ _id: id }, { password: hashedPassword })
+                .then((success) => res.send({ message: "Success" }))
+                .catch((err) => res.send({ message: err }));
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        }
+      });
+    });
+
     //new promise to send email
     await new Promise((resolve, reject) => {
       transporter.sendMail(mailOptions, (error, info) => {

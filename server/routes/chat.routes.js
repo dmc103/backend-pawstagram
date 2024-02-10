@@ -1,10 +1,11 @@
 const express = require("express");
 const router = express.Router();
+const axios = require("axios");
 
 //ChatGPT API
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
-router.post("/chatbot", async (req, res) => {
+router.post("/", async (req, res) => {
   const userMessage = req.body.message;
 
   try {
